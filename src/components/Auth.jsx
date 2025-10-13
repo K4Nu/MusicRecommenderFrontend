@@ -48,6 +48,7 @@ const Auth = {
                 headers: {
                     "Content-Type": "application/json",
                 },
+                credentials: "included",
                 body: JSON.stringify({
                     refresh: storedRefreshToken
                 })
@@ -63,31 +64,6 @@ const Auth = {
         } catch (e) {
             console.error("Token refresh failed:", e);
             Auth.clearTokens();
-            throw e;
-        }
-    },
-
-    // Login user (or you can remove this if you handle login separately)
-    login: async (credentials) => {
-        try {
-            const loginUrl = import.meta.env.VITE_LOGIN_URL || "http://127.0.0.1:8000/auth/login";
-            const response = await fetch(loginUrl, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(credentials)
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                Auth.setTokens(data.access_token, data.refresh_token);
-                return data;
-            } else {
-                throw new Error(`Login failed! status: ${response.status}`);
-            }
-        } catch (e) {
-            console.error("Login failed:", e);
             throw e;
         }
     },
