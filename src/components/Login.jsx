@@ -1,58 +1,60 @@
-import {useState} from "react";
+import { useState } from "react";
 import Auth from "./Auth.jsx";
-import {useNavigate} from "react-router";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-    const login_URL=import.meta.env.VITE_LOGIN_URL;
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const navigate=useNavigate();
-    const pushLogin = async (e) => {
-        e.preventDefault(); // Prevent form refresh
+    const navigate = useNavigate();
 
-        try {
-            const response = await fetch(login_URL, {
+
+    // Główny handler logowania
+    const pushLogin = async (e) => {
+        e.preventDefault();
+
+
+
+            // 2️⃣ Wyślij POST logowania z tokenem
+            const response = await fetch(import.meta.env.VITE_LOGIN_URL, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    email: email,  // Use "username" if your backend expects it
-                    password: password,
-                }),
+                body: JSON.stringify({ email, password }),
             });
 
             if (!response.ok) {
-                // Handle 4xx/5xx responses
-                const errorData = await response.json();
-                console.error("Login failed:", errorData);
+                const err = await response.json().catch(() => ({}));
+                console.error("Login failed:", err);
                 return;
             }
 
             const data = await response.json();
             console.log("Login success:", data);
 
-            // Save token (if returned)
+            // Zachowaj tokeny w Auth (opcjonalne)
             Auth.setTokens(
-                data.access || data.key,           // access token
-                data.refresh || null,              // refresh token
-                data.user.first_name || null,
+                data.access || data.key,
+                data.refresh || null,
             );
-            navigate('/');
 
-            // Optionally navigate to another page here
+            // Przekieruj po zalogowaniu
+            navigate("/");
 
-        } catch (error) {
-            console.error("Network error:", error);
-        }
     };
+
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
             <form className="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
-                <h2 className="text-2xl font-semibold text-center mb-6">Vault77 Login</h2>
+                <h2 className="text-2xl font-semibold text-center mb-6">
+                    Vault77 Login
+                </h2>
 
                 <div className="mb-4">
-                    <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-2">
+                    <label
+                        htmlFor="email"
+                        className="block text-gray-700 text-sm font-medium mb-2"
+                    >
                         Email
                     </label>
                     <input
@@ -65,7 +67,10 @@ const Login = () => {
                 </div>
 
                 <div className="mb-6">
-                    <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-2">
+                    <label
+                        htmlFor="password"
+                        className="block text-gray-700 text-sm font-medium mb-2"
+                    >
                         Password
                     </label>
                     <input
@@ -79,7 +84,7 @@ const Login = () => {
 
                 <button
                     type="submit"
-                    onClick={(e)=>pushLogin(e)}
+                    onClick={(e) => pushLogin(e)}
                     className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200"
                 >
                     Login
