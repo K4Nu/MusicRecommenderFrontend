@@ -105,8 +105,25 @@ const Auth = {
         crypto.getRandomValues(array);
         return Array.from(array, (x) => chars[x % chars.length]).join("");
     },
+    async generateCodeChallenge(codeVerifier) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(codeVerifier);
 
-    // >>> Spotify (Scenariusz B)
+        const digest = await crypto.subtle.digest("SHA-256", data);
+        const hashArray = Array.from(new Uint8Array(digest));
+
+        // zwykłe base64
+        let base64 = btoa(String.fromCharCode(...hashArray));
+
+        // zamiana na base64url (bez + / =)
+        base64 = base64
+            .replace(/\+/g, "-")
+            .replace(/\//g, "_")
+            .replace(/=+$/, "");
+
+        return base64;
+    },
+
     spotifyConnect() {
         const randomState = "Spotify" + Auth.generatePassword(64);
         sessionStorage.setItem("spotify_oauth_state", randomState);
@@ -127,16 +144,43 @@ const Auth = {
 
         window.location.assign(url);
     },
+    async youtubeConnect()
+    {
+        const randomState = "Youtube" + Auth.generatePassword(64);
+        sessionStorage.setItem("youtube_oauth_state", randomState);
+
+        const codeVerifier=Auth.generatePassword(64);
+        sessionStorage.setItem("youtube_code_verifier", codeVerifier);
+
+        const codeChallenge=await Auth.generateCodeChallenge(codeVerifier);
+
+        const clientId = encodeURIComponent(import.meta.env.VITE_YOUTUBE_CLIENT_ID);
+        const redirectUri = encodeURIComponent(import.meta.env.VITE_YOUTUBE_REDIRECT_URL);
+        const state = encodeURIComponent(randomState);
+
+        // Scope dla YouTube - read-only access
+        const scope = encodeURIComponent('https://www.googleapis.com/auth/youtube.readonly');
+
+        // URL do Google OAuth
+        const url =
+            "https://accounts.google.com/o/oauth2/v2/auth?" +
+            `client_id=${clientId}&` +
+            `redirect_uri=${redirectUri}&` +
+            `response_type=code&` +
+            `scope=${scope}&` +
+            `state=${state}&` +
+            `code_challenge=${codeChallenge}&` +
+            `code_challenge_method=S256&` +
+            `access_type=offline&` +
+            `prompt=consent`;
+
+
+        // Przekieruj użytkownika
+        window.location.href = url;
+    }
 };
 
-export async function generateCodeChallenge(verifier) {
-    const data = new TextEncoder().encode(verifier);
-    const digest = await crypto.subtle.digest("SHA-256", data);
-    return btoa(String.fromCharCode(...new Uint8Array(digest)))
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=+$/, "");
-}
+
 
 
 export default Auth

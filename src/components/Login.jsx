@@ -23,11 +23,18 @@ const Login = () => {
                 body: JSON.stringify({ email, password }),
             });
 
-            if (!response.ok) {
-                const err = await response.json().catch(() => ({}));
-                console.error("Login failed:", err);
-                return;
+        if (!response.ok) {
+            const text = await response.text().catch(() => "");
+            console.error("Login failed. Status:", response.status);
+            console.error("Raw response body:", text);
+            try {
+                const json = JSON.parse(text);
+                console.error("Parsed JSON:", json);
+            } catch (e) {
+                console.log(e);
             }
+            return;
+        }
 
             const data = await response.json();
             console.log("Login success:", data);
