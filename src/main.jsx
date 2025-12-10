@@ -4,15 +4,15 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom"; // <= tu 'react-router-dom'
 import Login from "./components/Login.jsx";
-import Test from "./components/Test.jsx";
-import Dziala from "./components/Dziala.jsx";
-import SpotifyOutput from "./components/SpotifyOutput.jsx";
+import Index from "./components/Index.jsx";
+import SpotifyApiComponent from "./components/SpotifyApiComponent.jsx";
+import YoutubeApiComponent from "./components/YoutubeApiComponent";
 
 const router = createBrowserRouter([
     { path: "/login", element: <Login /> },
-    { path: "/", element: <Test /> },
-    {path:"/spotify/callback", element:<Dziala /> },
-    {path:"/spotify/get",element:<SpotifyOutput />},
+    { path: "/", element: <Index /> },
+    {path:"/spotify/callback", element:<SpotifyApiComponent /> },
+    {path:"/youtube/callback", element:<YoutubeApiComponent />},
 ]);
 
 createRoot(document.getElementById("root")).render(

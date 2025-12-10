@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function Dziala() {
+export default function SpotifyApiComponent() {
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -57,9 +57,6 @@ export default function Dziala() {
 
                 console.log("Konto Spotify połączone ✅", data);
 
-                // (opcjonalnie) sprawdź status
-                // const s = await fetch("http://127.0.0.1:8000/auth/spotify/status/", { headers: { Authorization: `Bearer ${jwt}` }});
-                // console.log("Status:", await s.json());
 
                 // przekieruj użytkownika gdzieś sensownie
                 navigate("/");
