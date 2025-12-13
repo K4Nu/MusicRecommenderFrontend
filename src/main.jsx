@@ -8,14 +8,38 @@ import SpotifyApiComponent from "./components/SpotifyApiComponent.jsx";
 import YoutubeApiComponent from "./components/YoutubeApiComponent";
 import Register from "./components/Register.jsx";
 import { AuthProvider } from './components/AuthContext';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 
 const router = createBrowserRouter([
     { path: "/login", element: <Login /> },
-    { path: "/", element: <Index /> },
-    {path:"/spotify/callback", element:<SpotifyApiComponent /> },
-    {path:"/youtube/callback", element:<YoutubeApiComponent />},
-    {path:"/register",element:<Register />},
+    { path: "/register", element: <Register /> },
+
+    // 🔒 trasy chronione:
+    {
+        path: "/",
+        element: (
+            <ProtectedRoute>
+                <Index />
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: "/spotify/callback",
+        element: (
+            <ProtectedRoute>
+                <SpotifyApiComponent />
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: "/youtube/callback",
+        element: (
+            <ProtectedRoute>
+                <YoutubeApiComponent />
+            </ProtectedRoute>
+        ),
+    },
 ]);
 
 createRoot(document.getElementById("root")).render(
