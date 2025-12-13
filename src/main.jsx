@@ -7,6 +7,8 @@ import Index from "./components/Index.jsx";
 import SpotifyApiComponent from "./components/SpotifyApiComponent.jsx";
 import YoutubeApiComponent from "./components/YoutubeApiComponent";
 import Register from "./components/Register.jsx";
+import { AuthProvider } from './components/AuthContext';
+
 
 const router = createBrowserRouter([
     { path: "/login", element: <Login /> },
@@ -17,5 +19,7 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById("root")).render(
+    <AuthProvider>
         <RouterProvider router={router} />
+        </AuthProvider>
 );

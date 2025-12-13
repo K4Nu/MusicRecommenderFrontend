@@ -33,7 +33,7 @@ const Auth = {
 
         const refreshUrl =
             import.meta.env.VITE_REFRESH_URL ||
-            "http://127.0.0.1:8000/auth/token/refresh/"; // trailing slash
+            "http://127.0.0.1:8000/auth/jwt/refresh/"; // trailing slash
 
         const resp = await fetch(refreshUrl, {
             method: "POST",
