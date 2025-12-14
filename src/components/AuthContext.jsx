@@ -10,19 +10,19 @@ export const AuthProvider = ({ children }) => {
 
     const checkAuth = async () => {
         try {
-            // 1. Sprawdź access token
+            // 1. access token
             if (Auth.isAuthenticated()) {
                 setIsAuthenticated(true);
-                setUser({ authenticated: true }); // miejsce na realne dane usera
+                setUser({ authenticated: true });
                 return;
             }
 
-            // 2. Spróbuj refresh token
+            // 2.refresh token
             const tokens = Auth.getTokens();
             const refreshToken = tokens?.refreshToken;
 
             if (refreshToken) {
-                await Auth.refreshToken(); // zakładamy, że ustawia nowe access/refresh
+                await Auth.refreshToken();
                 setIsAuthenticated(true);
                 setUser({ authenticated: true });
             } else {
