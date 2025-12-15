@@ -50,8 +50,7 @@ const Navbar = () => {
                     </svg>
                 </label>
             </div>
-
-            {/* Prawa strona (pusta tylko dla balansu, żeby center było faktycznie na środku) */}
+            
             <div className="navbar-end" />
         </div>
     );
