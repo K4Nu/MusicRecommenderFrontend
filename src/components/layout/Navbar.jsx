@@ -50,7 +50,7 @@ const Navbar = () => {
                     </svg>
                 </label>
             </div>
-            
+
             <div className="navbar-end" />
         </div>
     );

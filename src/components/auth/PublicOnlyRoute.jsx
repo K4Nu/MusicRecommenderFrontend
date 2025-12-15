@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from './AuthContext.jsx';
+import { useAuth } from '../../contexts/AuthContext.jsx';
 import ProtectedRoute from "./ProtectedRoute.jsx";
 
 const PublicOnlyRoute = ({children}) => {

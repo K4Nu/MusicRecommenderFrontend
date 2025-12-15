@@ -1,5 +1,5 @@
-import Auth from "./Auth";
-import Navbar from "./layout/Navbar.jsx";
+import Auth from "../utils/Auth.js";
+import Navbar from "../components/layout/Navbar.jsx";
 
 const Index = () => {
     console.log(Auth.getTokens());

@@ -1,14 +1,14 @@
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider,Navigate  } from "react-router-dom"; // <= tu 'react-router-dom'
-import Login from "./components/Login.jsx";
-import Index from "./components/Index.jsx";
-import SpotifyApiComponent from "./components/SpotifyApiComponent.jsx";
-import YoutubeApiComponent from "./components/YoutubeApiComponent";
-import Register from "./components/Register.jsx";
-import { AuthProvider } from './components/AuthContext';
-import ProtectedRoute from "./components/ProtectedRoute";
-import PublicOnlyRoute from "./components/PublicOnlyRoute";
+import Login from "./pages/Login.jsx";
+import Index from "./pages/Index.jsx";
+import SpotifyApiComponent from "./components/Spotify/SpotifyApiComponent.jsx";
+import YoutubeApiComponent from "./components/Youtube/YoutubeAPIComponent.jsx";
+import Register from "./pages/Register.jsx";
+import { AuthProvider } from './contexts/AuthContext.jsx';
+import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
+import PublicOnlyRoute from "./components/auth/PublicOnlyRoute.jsx";
 
 
 const router = createBrowserRouter([

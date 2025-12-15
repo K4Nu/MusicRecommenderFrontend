@@ -1,6 +1,5 @@
 import {useNavigate} from 'react-router-dom';
 import {useEffect} from "react";
-import Auth from './Auth';
 const YoutubeApiComponent = () => {
     const navigate = useNavigate();
 
