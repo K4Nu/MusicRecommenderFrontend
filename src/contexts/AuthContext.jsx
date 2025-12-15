@@ -47,7 +47,6 @@ export const AuthProvider = ({ children }) => {
         Auth.setTokens(accessToken, refreshToken);
         setIsAuthenticated(true);
         setUser({ authenticated: true });
-        // albo: await checkAuth();
     };
 
     const logout = async () => {

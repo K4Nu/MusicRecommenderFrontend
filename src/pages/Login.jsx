@@ -1,11 +1,13 @@
 import { useState } from "react";
 import Auth from "../utils/Auth.js";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext"; // dostosuj ścieżkę
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
+    const { login } = useAuth();          // <-- bierzemy funkcję z kontekstu
 
     const pushLogin = async (e) => {
         e.preventDefault();
@@ -34,7 +36,12 @@ const Login = () => {
         const data = await response.json();
         console.log("Login success:", data);
 
-        Auth.setTokens(data.access || data.key, data.refresh || null);
+        const access = data.access || data.key;
+        const refresh = data.refresh || null;
+
+
+        await login(access, refresh);
+
         navigate("/");
     };
 
