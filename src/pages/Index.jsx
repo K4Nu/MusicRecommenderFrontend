@@ -1,8 +1,19 @@
 import Auth from "../utils/Auth.js";
 import Navbar from "../components/layout/Navbar.jsx";
+import { useEffect } from "react";
+import { getRecommendations } from "../api/recommendations";
 
 const Index = () => {
-    console.log(Auth.getTokens());
+
+    useEffect(() => {
+        if (!Auth.isAuthenticated()) return;
+
+        getRecommendations()
+            .then(res => {
+                console.log("Rekomendacje:", res.data);
+            })
+            .catch(err => console.error(err));
+    }, []);
 
     if (!Auth.isAuthenticated()) return null;
 

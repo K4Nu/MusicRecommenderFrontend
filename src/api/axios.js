@@ -9,9 +9,9 @@ const api = axios.create({
 // Automatycznie dodaje token do KAŻDEGO requesta
 api.interceptors.request.use(
     (config) => {
-        const token = Auth.getAccessToken();
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+        const {accessToken, refreshToken} = Auth.getTokens()
+        if (accessToken) {
+            config.headers.Authorization = `Bearer ${accessToken}`;
         }
         return config;
     }
