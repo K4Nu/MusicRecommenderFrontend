@@ -7,13 +7,8 @@ const Index = () => {
 
     useEffect(() => {
         if (!Auth.isAuthenticated()) return;
+    })
 
-        getRecommendations()
-            .then(res => {
-                console.log("Rekomendacje:", res.data);
-            })
-            .catch(err => console.error(err));
-    }, []);
 
     if (!Auth.isAuthenticated()) return null;
 
@@ -38,6 +33,12 @@ const Index = () => {
                             className="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-xl transition duration-200"
                         >
                             Connect YouTube Account
+                        </button>
+                        <button
+                            onClick={Auth.lastFmConnect}
+                            className="w-full py-3 bg-[#d51007] hover:bg-[#b40d06] text-white font-medium rounded-xl transition duration-200"
+                        >
+                            Connect Last.fm Account
                         </button>
                     </div>
                 </div>

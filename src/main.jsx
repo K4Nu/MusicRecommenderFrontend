@@ -5,10 +5,12 @@ import Login from "./pages/Login.jsx";
 import Index from "./pages/Index.jsx";
 import SpotifyApiComponent from "./components/Spotify/SpotifyApiComponent.jsx";
 import YoutubeApiComponent from "./components/Youtube/YoutubeAPIComponent.jsx";
+import LastFMApiComponent from "./components/LastFM/LastFMApiComponent.jsx";
 import Register from "./pages/Register.jsx";
 import { AuthProvider } from './contexts/AuthContext.jsx';
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 import PublicOnlyRoute from "./components/auth/PublicOnlyRoute.jsx";
+
 
 
 const router = createBrowserRouter([
@@ -45,6 +47,14 @@ const router = createBrowserRouter([
         element: (
             <ProtectedRoute>
                 <YoutubeApiComponent />
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: "/last-fm/callback",
+        element: (
+            <ProtectedRoute>
+                <LastFMApiComponent />
             </ProtectedRoute>
         ),
     },
