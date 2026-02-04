@@ -9,40 +9,81 @@ const Index = () => {
 
     useEffect(() => {
         if (!Auth.isAuthenticated()) return;
-
         fetchColdStartSongs();
     }, []);
 
     const fetchColdStartSongs = async () => {
         try {
             const jwt = localStorage.getItem("access_token");
-            const response = await fetch('http://127.0.0.1:8000/cold_start/', {
+            const response = await fetch("http://127.0.0.1:8000/cold_start/", {
                 headers: {
                     "Content-Type": "application/json",
-                    'Authorization': `Bearer ${jwt}`,
-                }
+                    Authorization: `Bearer ${jwt}`,
+                },
             });
+
             const data = await response.json();
-            setSongs(data);
+
+            if (data.tracks && Array.isArray(data.tracks)) {
+                setSongs(data.tracks);
+            } else {
+                setSongs([]);
+            }
+
             setLoading(false);
         } catch (error) {
-            console.error('Failed to fetch songs:', error);
+            console.error("Failed to fetch songs:", error);
             setLoading(false);
         }
     };
 
-    const handleSkip = () => {
+    // ================================
+    // INTERACTIONS
+    // ================================
+    const sendInteraction = async (song, action) => {
+        try {
+            const jwt = localStorage.getItem("access_token");
+
+            await fetch("http://127.0.0.1:8000/onboarding/interact/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${jwt}`,
+                },
+                body: JSON.stringify({
+                    cold_start_track_id: song.id,
+                    action, // LIKE | SKIP | NOT_MY_STYLE
+                }),
+            });
+        } catch (err) {
+            console.error("Failed to send interaction:", err);
+        }
+    };
+
+    const handleNext = () => {
         if (currentIndex < songs.length - 1) {
-            setCurrentIndex(currentIndex + 1);
+            setCurrentIndex((i) => i + 1);
         } else {
             setSongs([]);
         }
     };
 
-    const handleLike = () => {
+    const handleLike = async () => {
         const song = songs[currentIndex];
-        console.log('Liked:', song.track_name);
-        handleSkip();
+        await sendInteraction(song, "LIKE");
+        handleNext();
+    };
+
+    const handleSkip = async () => {
+        const song = songs[currentIndex];
+        await sendInteraction(song, "SKIP");
+        handleNext();
+    };
+
+    const handleNotMyStyle = async () => {
+        const song = songs[currentIndex];
+        await sendInteraction(song, "NOT_MY_STYLE");
+        handleNext();
     };
 
     if (!Auth.isAuthenticated()) return null;
@@ -53,9 +94,10 @@ const Index = () => {
     return (
         <>
             <Navbar />
+
             <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-                {/* Connection Card */}
-                {!showSongCard && (
+                {/* CONNECT ACCOUNTS */}
+                {!showSongCard && !loading && (
                     <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md text-center">
                         <h1 className="text-2xl font-semibold text-gray-800 mb-6">
                             Connect Your Accounts
@@ -63,21 +105,21 @@ const Index = () => {
                         <div className="flex flex-col gap-4">
                             <button
                                 onClick={Auth.spotifyConnect}
-                                className="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-xl transition duration-200"
+                                className="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-xl"
                             >
-                                Connect Spotify Account
+                                Connect Spotify
                             </button>
                             <button
                                 onClick={Auth.youtubeConnect}
-                                className="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-xl transition duration-200"
+                                className="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-xl"
                             >
-                                Connect YouTube Account
+                                Connect YouTube
                             </button>
                         </div>
                     </div>
                 )}
 
-                {/* Song Discovery Card */}
+                {/* ONBOARDING CARD */}
                 {showSongCard && (
                     <div className="bg-white shadow-2xl rounded-3xl p-6 w-full max-w-lg">
                         {/* Header */}
@@ -90,9 +132,9 @@ const Index = () => {
                             </p>
                         </div>
 
-                        {/* Song Info */}
+                        {/* Track info */}
                         <div className="mb-4 text-center">
-                            <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                            <h3 className="text-xl font-semibold text-gray-900">
                                 {currentSong.track_name}
                             </h3>
                             <p className="text-gray-600">
@@ -112,38 +154,45 @@ const Index = () => {
                             />
                         </div>
 
-                        {/* Action Buttons */}
+                        {/* ACTIONS */}
                         <div className="flex justify-center gap-6">
-                            {/* Skip Button (X) */}
+                            {/* NOT MY STYLE */}
                             <button
-                                onClick={handleSkip}
-                                className="w-16 h-16 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition duration-200 shadow-md hover:shadow-lg"
-                                aria-label="Skip"
+                                onClick={handleNotMyStyle}
+                                className="w-14 h-14 bg-yellow-100 hover:bg-yellow-200 rounded-full flex items-center justify-center shadow"
+                                title="Not my style"
                             >
-                                <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
+                                😐
                             </button>
 
-                            {/* Like Button (Heart) */}
+                            {/* SKIP */}
+                            <button
+                                onClick={handleSkip}
+                                className="w-16 h-16 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center shadow"
+                                title="Skip"
+                            >
+                                ❌
+                            </button>
+
+                            {/* LIKE */}
                             <button
                                 onClick={handleLike}
-                                className="w-16 h-16 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition duration-200 shadow-md hover:shadow-lg"
-                                aria-label="Like"
+                                className="w-16 h-16 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow"
+                                title="Like"
                             >
-                                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                </svg>
+                                ❤️
                             </button>
                         </div>
                     </div>
                 )}
 
-                {/* Loading State */}
+                {/* LOADING */}
                 {loading && (
                     <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
-                        <p className="mt-4 text-gray-600">Loading your personalized songs...</p>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto" />
+                        <p className="mt-4 text-gray-600">
+                            Loading your music taste...
+                        </p>
                     </div>
                 )}
             </div>
