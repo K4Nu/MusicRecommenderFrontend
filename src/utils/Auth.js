@@ -1,7 +1,16 @@
 import jwtDecode from "jwt-decode";
 
+const ONBOARDING_KEYS = [
+    "onboarding_buffer",
+    "onboarding_tracks",
+    "onboarding_position",
+    "onboarding_user_id",
+];
+
 const Auth = {
-    // Get tokens from localStorage
+    // =========================
+    // TOKENS
+    // =========================
     getTokens() {
         return {
             accessToken: localStorage.getItem("access_token"),
@@ -9,25 +18,25 @@ const Auth = {
         };
     },
 
-    // Store tokens in localStorage
     setTokens(accessToken, refreshToken) {
         if (accessToken) localStorage.setItem("access_token", accessToken);
         if (refreshToken) localStorage.setItem("refresh_token", refreshToken);
     },
 
-    // Clear tokens from localStorage
     clearTokens() {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
     },
 
-
-    // Check if user is authenticated (DEV heurystyka)
+    // =========================
+    // AUTH STATE
+    // =========================
     isAuthenticated() {
         const { accessToken } = this.getTokens();
         return !!accessToken && !this.isTokenExpired(accessToken);
+    },
 
-    },getUserId() {
+    getUserId() {
         try {
             const token = localStorage.getItem("access_token");
             if (!token) return null;
@@ -39,20 +48,22 @@ const Auth = {
             return null;
         }
     },
-    // Refresh access token
+
+    // =========================
+    // TOKEN REFRESH
+    // =========================
     async refreshToken() {
-        const { refreshToken: storedRefreshToken } = this.getTokens();
-        if (!storedRefreshToken) throw new Error("No refresh token available");
+        const { refreshToken } = this.getTokens();
+        if (!refreshToken) throw new Error("No refresh token available");
 
         const refreshUrl =
             import.meta.env.VITE_REFRESH_URL ||
-            "http://127.0.0.1:8000/auth/jwt/refresh/"; // trailing slash
+            "http://127.0.0.1:8000/auth/jwt/refresh/";
 
         const resp = await fetch(refreshUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            // credentials: "include" nie jest wymagane dla czystych JWT w nagłówku
-            body: JSON.stringify({ refresh: storedRefreshToken }),
+            body: JSON.stringify({ refresh: refreshToken }),
         });
 
         if (!resp.ok) {
@@ -61,45 +72,66 @@ const Auth = {
         }
 
         const data = await resp.json();
-        const newAccess = data.access || data.access_token;
-        const newRefresh = data.refresh || data.refresh_token || storedRefreshToken;
-        this.setTokens(newAccess, newRefresh);
+        this.setTokens(
+            data.access || data.access_token,
+            data.refresh || data.refresh_token || refreshToken
+        );
+
         return data;
     },
 
-    // Logout user
+    // =========================
+    // 🔥 LOGOUT (FIX HERE)
+    // =========================
     async logout() {
         try {
             const logoutUrl =
-                import.meta.env.VITE_LOGOUT_URL || "http://127.0.0.1:8000/auth/logout/"; // slash
+                import.meta.env.VITE_LOGOUT_URL ||
+                "http://127.0.0.1:8000/auth/logout/";
+
             await fetch(logoutUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                credentials: "include", // jeśli masz sesje/CSRF – ok; dla JWT-only można pominąć
+                credentials: "include",
                 body: JSON.stringify({}),
             });
         } catch (e) {
             console.error("Logout API call failed:", e);
         } finally {
+            // 🔥 TOKEN CLEANUP
             this.clearTokens();
+
+            // 🔥 ONBOARDING CLEANUP (CRITICAL)
+            ONBOARDING_KEYS.forEach(key =>
+                localStorage.removeItem(key)
+            );
+
             window.location.href = "/";
         }
     },
 
-    // Auth header for API
+    // =========================
+    // HEADERS
+    // =========================
     getAuthHeader() {
         const { accessToken } = this.getTokens();
-        return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+        return accessToken
+            ? { Authorization: `Bearer ${accessToken}` }
+            : {};
     },
 
-    // JWT helpers (bezpieczne base64url → base64)
+    // =========================
+    // JWT HELPERS
+    // =========================
     parseJwt(token) {
         try {
             const base64Url = token.split(".")[1];
-            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-            const padded = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, "=");
-            const payload = JSON.parse(atob(padded));
-            return payload;
+            const base64 = base64Url
+                .replace(/-/g, "+")
+                .replace(/_/g, "/")
+                .padEnd(base64Url.length + (4 - (base64Url.length % 4)) % 4, "=");
+
+            return JSON.parse(atob(base64));
         } catch {
             return null;
         }
@@ -107,38 +139,37 @@ const Auth = {
 
     isTokenExpired(token) {
         const payload = this.parseJwt(token);
-        if (!payload || !payload.exp) return true;
-        const now = Math.floor(Date.now() / 1000);
-        return payload.exp < now;
+        if (!payload?.exp) return true;
+        return payload.exp < Math.floor(Date.now() / 1000);
     },
 
+    // =========================
+    // OAUTH HELPERS
+    // =========================
     generatePassword(length) {
-        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
+        const chars =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
         const array = new Uint32Array(length);
         crypto.getRandomValues(array);
-        return Array.from(array, (x) => chars[x % chars.length]).join("");
+        return Array.from(array, x => chars[x % chars.length]).join("");
     },
-    async generateCodeChallenge(codeVerifier) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(codeVerifier);
 
+    async generateCodeChallenge(codeVerifier) {
+        const data = new TextEncoder().encode(codeVerifier);
         const digest = await crypto.subtle.digest("SHA-256", data);
         const hashArray = Array.from(new Uint8Array(digest));
 
-        // zwykłe base64
-        let base64 = btoa(String.fromCharCode(...hashArray));
-
-        // zamiana na base64url (bez + / =)
-        base64 = base64
+        return btoa(String.fromCharCode(...hashArray))
             .replace(/\+/g, "-")
             .replace(/\//g, "_")
             .replace(/=+$/, "");
-
-        return base64;
     },
 
+    // =========================
+    // SPOTIFY
+    // =========================
     spotifyConnect() {
-        const randomState = "Spotify" + Auth.generatePassword(64);
+        const randomState = "Spotify" + this.generatePassword(64);
         sessionStorage.setItem("spotify_oauth_state", randomState);
 
         const clientId = encodeURIComponent(import.meta.env.VITE_SPOTIFY_CLIENT_ID);
@@ -146,55 +177,43 @@ const Auth = {
         const scope = encodeURIComponent(
             "user-top-read user-read-recently-played playlist-read-private playlist-read-collaborative user-library-read user-read-private user-read-email"
         );
-        const state = encodeURIComponent(randomState);
 
-        const url =
-            `https://accounts.spotify.com/authorize?client_id=${clientId}` +
+        window.location.assign(
+            `https://accounts.spotify.com/authorize` +
+            `?client_id=${clientId}` +
             `&response_type=code` +
             `&redirect_uri=${redirectUri}` +
             `&scope=${scope}` +
-            `&state=${state}`;
-
-        window.location.assign(url);
+            `&state=${encodeURIComponent(randomState)}`
+        );
     },
-    async youtubeConnect()
-    {
-        const randomState = "Youtube" + Auth.generatePassword(64);
+
+    // =========================
+    // YOUTUBE
+    // =========================
+    async youtubeConnect() {
+        const randomState = "Youtube" + this.generatePassword(64);
         sessionStorage.setItem("youtube_oauth_state", randomState);
 
-        const codeVerifier=Auth.generatePassword(64);
-        sessionStorage.setItem("youtube_code_verifier", codeVerifier);
+        const verifier = this.generatePassword(64);
+        sessionStorage.setItem("youtube_code_verifier", verifier);
 
-        const codeChallenge=await Auth.generateCodeChallenge(codeVerifier);
+        const challenge = await this.generateCodeChallenge(verifier);
 
         const clientId = encodeURIComponent(import.meta.env.VITE_YOUTUBE_CLIENT_ID);
         const redirectUri = encodeURIComponent(import.meta.env.VITE_YOUTUBE_REDIRECT_URL);
-        const state = encodeURIComponent(randomState);
 
-        // Scope dla YouTube - read-only access
-        const scope = encodeURIComponent('https://www.googleapis.com/auth/youtube.force-ssl');
-
-
-        // URL do Google OAuth
-        const url =
+        window.location.href =
             "https://accounts.google.com/o/oauth2/v2/auth?" +
             `client_id=${clientId}&` +
             `redirect_uri=${redirectUri}&` +
             `response_type=code&` +
-            `scope=${scope}&` +
-            `state=${state}&` +
-            `code_challenge=${codeChallenge}&` +
+            `scope=${encodeURIComponent("https://www.googleapis.com/auth/youtube.readonly")}&` +
+            `state=${encodeURIComponent(randomState)}&` +
+            `code_challenge=${challenge}&` +
             `code_challenge_method=S256&` +
-            `access_type=offline&` +
-            `prompt=consent`;
-
-
-        // Przekieruj użytkownika
-        window.location.href = url;
-    }
+            `access_type=offline&prompt=consent`;
+    },
 };
 
-
-
-
-export default Auth
+export default Auth;
