@@ -1,4 +1,5 @@
-// Auth.js
+import jwtDecode from "jwt-decode";
+
 const Auth = {
     // Get tokens from localStorage
     getTokens() {
@@ -20,12 +21,24 @@ const Auth = {
         localStorage.removeItem("refresh_token");
     },
 
+
     // Check if user is authenticated (DEV heurystyka)
     isAuthenticated() {
         const { accessToken } = this.getTokens();
         return !!accessToken && !this.isTokenExpired(accessToken);
-    },
 
+    },getUserId() {
+        try {
+            const token = localStorage.getItem("access_token");
+            if (!token) return null;
+
+            const decoded = jwtDecode(token);
+            return decoded.user_id ?? decoded.id ?? null;
+        } catch (e) {
+            console.error("Failed to decode JWT", e);
+            return null;
+        }
+    },
     // Refresh access token
     async refreshToken() {
         const { refreshToken: storedRefreshToken } = this.getTokens();
