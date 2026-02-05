@@ -172,7 +172,8 @@ const Auth = {
         const state = encodeURIComponent(randomState);
 
         // Scope dla YouTube - read-only access
-        const scope = encodeURIComponent('https://www.googleapis.com/auth/youtube.readonly');
+        const scope = encodeURIComponent('https://www.googleapis.com/auth/youtube.force-ssl');
+
 
         // URL do Google OAuth
         const url =

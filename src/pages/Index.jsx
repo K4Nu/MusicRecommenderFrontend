@@ -41,31 +41,9 @@ const Index = () => {
     // PERSIST STATE
     // ================================
     useEffect(() => {
-        localStorage.setItem(ONBOARDING_BUFFER_KEY, JSON.stringify(eventBuffer));
-    }, [eventBuffer]);
-
-    useEffect(() => {
-        localStorage.setItem(ONBOARDING_TRACKS_KEY, JSON.stringify(songs));
-    }, [songs]);
-
-    useEffect(() => {
-        localStorage.setItem(
-            ONBOARDING_POSITION_KEY,
-            currentIndex.toString()
-        );
-    }, [currentIndex]);
-
-    // ================================
-    // INITIAL LOAD
-    // ================================
-    useEffect(() => {
         if (!Auth.isAuthenticated()) return;
-        if (songs.length > 0) {
-            setLoading(false);
-            return;
-        }
-        checkSetupStatus();
-    }, []);
+    })
+
 
     const checkSetupStatus = async () => {
         try {
@@ -236,72 +214,33 @@ const Index = () => {
     return (
         <>
             <Navbar />
-
-            <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-                {needsIntegration && !showSongCard && (
-                    <div className="bg-white p-8 rounded-2xl shadow text-center">
-                        <h1 className="text-xl font-semibold mb-4">
-                            Connect accounts
-                        </h1>
-                        <button onClick={Auth.spotifyConnect}>Spotify</button>
-                        <button onClick={Auth.youtubeConnect}>YouTube</button>
+            <div className="flex items-center justify-center min-h-screen bg-gray-100">
+                <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md text-center">
+                    <h1>You are authenticated</h1>
+                    <h1 className="text-2xl font-semibold text-gray-800 mb-6">
+                        Connect Your Accounts
+                    </h1>
+                    <div className="flex flex-col gap-4">
+                        <button
+                            onClick={Auth.spotifyConnect}
+                            className="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-xl transition duration-200"
+                        >
+                            Connect Spotify Account
+                        </button>
+                        <button
+                            onClick={Auth.youtubeConnect}
+                            className="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-xl transition duration-200"
+                        >
+                            Connect YouTube Account
+                        </button>
+                        <button
+                            onClick={Auth.lastFmConnect}
+                            className="w-full py-3 bg-[#d51007] hover:bg-[#b40d06] text-white font-medium rounded-xl transition duration-200"
+                        >
+                            Connect Last.fm Account
+                        </button>
                     </div>
                 )}
-
-                {showSongCard && (
-                    <div className="bg-white p-6 rounded-3xl shadow-xl w-full max-w-lg">
-                        <h2 className="text-center font-bold text-xl mb-2">
-                            Discover Your Music
-                        </h2>
-                        <p className="text-center text-sm text-gray-500 mb-4">
-                            {currentIndex + 1} / {songs.length}
-                        </p>
-
-                        <h3 className="text-center font-semibold">
-                            {currentSong.track_name}
-                        </h3>
-                        <p className="text-center text-gray-600 mb-4">
-                            {currentSong.artists.join(", ")}
-                        </p>
-
-                        <iframe
-                            src={currentSong.embed_url}
-                            width="100%"
-                            height="352"
-                            allow="autoplay; encrypted-media"
-                            className="rounded-xl mb-4"
-                        />
-
-                        {needsMoreLikes && (
-                            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-300 rounded text-center text-sm">
-                                ❤️ Polub jeszcze{" "}
-                                <strong>{likesMissing}</strong>{" "}
-                                {likesMissing === 1 ? "utwór" : "utwory"},
-                                aby zakończyć onboarding
-                            </div>
-                        )}
-
-                        <div className="flex justify-center gap-6">
-                            <button
-                                disabled={needsMoreLikes}
-                                className={needsMoreLikes ? "opacity-30" : ""}
-                                onClick={handleNotMyStyle}
-                            >
-                                😐
-                            </button>
-                            <button
-                                disabled={needsMoreLikes}
-                                className={needsMoreLikes ? "opacity-30" : ""}
-                                onClick={handleSkip}
-                            >
-                                ❌
-                            </button>
-                            <button onClick={handleLike}>❤️</button>
-                        </div>
-                    </div>
-                )}
-
-                {loading && <p>Loading…</p>}
             </div>
         </>
     );
