@@ -168,8 +168,8 @@ const Auth = {
     // =========================
     // SPOTIFY
     // =========================
-    spotifyConnect() {
-        const randomState = "Spotify" + this.generatePassword(64);
+    spotifyConnect: () => {
+        const randomState = "Spotify" + Auth.generatePassword(64);
         sessionStorage.setItem("spotify_oauth_state", randomState);
 
         const clientId = encodeURIComponent(import.meta.env.VITE_SPOTIFY_CLIENT_ID);
@@ -191,14 +191,14 @@ const Auth = {
     // =========================
     // YOUTUBE
     // =========================
-    async youtubeConnect() {
-        const randomState = "Youtube" + this.generatePassword(64);
+    youtubeConnect: async () => {
+        const randomState = "Youtube" + Auth.generatePassword(64);  // Changed from this
         sessionStorage.setItem("youtube_oauth_state", randomState);
 
-        const verifier = this.generatePassword(64);
+        const verifier = Auth.generatePassword(64);  // Changed from this
         sessionStorage.setItem("youtube_code_verifier", verifier);
 
-        const challenge = await this.generateCodeChallenge(verifier);
+        const challenge = await Auth.generateCodeChallenge(verifier);  // Changed from this
 
         const clientId = encodeURIComponent(import.meta.env.VITE_YOUTUBE_CLIENT_ID);
         const redirectUri = encodeURIComponent(import.meta.env.VITE_YOUTUBE_REDIRECT_URL);

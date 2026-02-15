@@ -10,7 +10,7 @@ import Register from "./pages/Register.jsx";
 import { AuthProvider } from './contexts/AuthContext.jsx';
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 import PublicOnlyRoute from "./components/auth/PublicOnlyRoute.jsx";
-
+import Onboarding from "./pages/Onboarding.jsx";
 
 
 const router = createBrowserRouter([
@@ -55,6 +55,14 @@ const router = createBrowserRouter([
         element: (
             <ProtectedRoute>
                 <LastFMApiComponent />
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: "/onboarding",
+        element: (
+            <ProtectedRoute>
+                <Onboarding/>
             </ProtectedRoute>
         ),
     },
