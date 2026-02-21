@@ -11,6 +11,7 @@ import { AuthProvider } from './contexts/AuthContext.jsx';
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 import PublicOnlyRoute from "./components/auth/PublicOnlyRoute.jsx";
 import Onboarding from "./pages/Onboarding.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
 
 
 const router = createBrowserRouter([
@@ -33,6 +34,14 @@ const router = createBrowserRouter([
                 <Index />
             </ProtectedRoute>
         ),
+    },
+    {
+      path:"/reset-password/:uid/:token",
+        element: (
+            <PublicOnlyRoute>
+                <ResetPassword />
+            </PublicOnlyRoute>
+        )
     },
     {
         path: "/spotify/callback",

@@ -1,85 +1,80 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
 const Navbar = () => {
-    const { logout, user } = useAuth();
+    const { logout } = useAuth();
+    const navigate = useNavigate();
 
     const handleLogout = async () => {
         await logout();
     };
 
     return (
-        <div className="navbar bg-base-100 shadow-md px-4">
-            {/* Lewa strona */}
+        <div className="navbar bg-base-100 shadow-md px-4 sm:px-6">
+
+            {/* LEFT - LOGO */}
             <div className="navbar-start">
-                <span className="btn btn-ghost text-xl">Home</span>
+                <button
+                    onClick={() => navigate("/")}
+                    className="btn btn-ghost text-lg sm:text-xl font-semibold normal-case"
+                >
+                    Recommender
+                </button>
             </div>
 
-            {/* Środek */}
-            <div className="navbar-center">
-                <label className="input input-bordered flex items-center gap-2 w-64">
-                    {/* Ikona lupy (lewa) */}
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 opacity-70"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 3a7.5 7.5 0 006.15 13.65z"
-                        />
-                    </svg>
-
-                    <input
-                        type="text"
-                        className="grow"
-                        placeholder="Szukaj..."
-                    />
-
-                    {/* Ikona osoby (prawa) */}
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 opacity-70"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M5.121 17.804A8 8 0 1119 10a8 8 0 01-13.879 7.804z"
-                        />
-                    </svg>
-                </label>
-            </div>
-
-            {/* Prawa strona - Logout */}
+            {/* RIGHT - USER MENU */}
             <div className="navbar-end">
                 <div className="dropdown dropdown-end">
-                    <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-                        <div className="w-10 rounded-full bg-neutral text-neutral-content flex items-center justify-center">
-                            <span className="text-xl">
-                                {user?.email?.[0]?.toUpperCase() || "U"}
-                            </span>
+                    <label
+                        tabIndex={0}
+                        className="btn btn-ghost btn-circle"
+                    >
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-neutral text-neutral-content flex items-center justify-center">
+
+                            {/* User Icon */}
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.8}
+                                stroke="currentColor"
+                                className="w-5 h-5 sm:w-6 sm:h-6"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a7.5 7.5 0 0115 0"
+                                />
+                            </svg>
+
                         </div>
                     </label>
+
                     <ul
                         tabIndex={0}
-                        className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+                        className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-44 sm:w-52"
                     >
                         <li>
-                            <a className="justify-between">
+                            <button onClick={() => navigate("/profile")}>
                                 Profile
-                                <span className="badge">New</span>
-                            </a>
+                            </button>
                         </li>
-                        <li><a>Settings</a></li>
-                        <li><a onClick={handleLogout}>Logout</a></li>
+
+                        <li>
+                            <button onClick={() => navigate("/settings")}>
+                                Settings
+                            </button>
+                        </li>
+
+                        <li>
+                            <button
+                                onClick={handleLogout}
+                                className="text-error"
+                            >
+                                Logout
+                            </button>
+                        </li>
                     </ul>
                 </div>
             </div>
