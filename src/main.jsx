@@ -12,6 +12,8 @@ import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 import PublicOnlyRoute from "./components/auth/PublicOnlyRoute.jsx";
 import Onboarding from "./pages/Onboarding.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
+import Settings from "./pages/Settings.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
 
 
 const router = createBrowserRouter([
@@ -42,6 +44,22 @@ const router = createBrowserRouter([
                 <ResetPassword />
             </PublicOnlyRoute>
         )
+    },
+    {
+        path:"/forgot-password",
+        element: (
+            <PublicOnlyRoute>
+                <ForgotPassword />
+            </PublicOnlyRoute>
+        )
+    },
+    {
+        path: "/settings",
+        element: (
+            <ProtectedRoute>
+                <Settings/>
+            </ProtectedRoute>
+        ),
     },
     {
         path: "/spotify/callback",
