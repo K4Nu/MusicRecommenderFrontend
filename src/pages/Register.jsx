@@ -87,8 +87,9 @@ const Register = () => {
                         </label>
                         <input
                             type="password"
+                            autoComplete="new-password"
                             id="password1"
-                            placeholder="Minimum 8 znaków"
+                            placeholder="Minimum 8 characters"
                             value={password1}
                             onChange={(e) => setPassword1(e.target.value)}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition"
@@ -102,8 +103,9 @@ const Register = () => {
                         </label>
                         <input
                             type="password"
+                            autoComplete="new-password"
                             id="password2"
-                            placeholder="Powtórz hasło"
+                            placeholder="Repeat password"
                             value={password2}
                             onChange={(e) => setPassword2(e.target.value)}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition"
