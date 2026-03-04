@@ -1,13 +1,13 @@
 import { useState } from "react";
 import Auth from "../utils/Auth.js";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext"; // dostosuj ścieżkę
+import { useAuth } from "../contexts/AuthContext";
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
-    const { login } = useAuth();          // <-- bierzemy funkcję z kontekstu
+    const { login } = useAuth();
 
     const pushLogin = async (e) => {
         e.preventDefault();
@@ -39,9 +39,7 @@ const Login = () => {
         const access = data.access || data.key;
         const refresh = data.refresh || null;
 
-
         await login(access, refresh);
-
         navigate("/");
     };
 
@@ -85,6 +83,17 @@ const Login = () => {
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                             required
                         />
+
+                        {/* Fake forgot password link */}
+                        <div className="flex justify-end mt-2">
+                            <button
+                                type="button"
+                                onClick={(e) => e.preventDefault()}
+                                className="text-sm text-blue-600 hover:underline hover:text-blue-800 transition"
+                            >
+                                Forgot password?
+                            </button>
+                        </div>
                     </div>
 
                     <button
